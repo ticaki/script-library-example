@@ -1,8 +1,9 @@
+
 class Person {
     private nachname: string;
     private vorname: string;
     private alter: string;
-    private adapter: any;
+    private adapter: ScriptAdapter;
     constructor(vorname, nachname, alter, adapter) {
       this.vorname = vorname;
       this.nachname = nachname;

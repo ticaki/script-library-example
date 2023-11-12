@@ -1724,4 +1724,504 @@ declare global {
 
 	/** `await` this method to pause for the given number of milliseconds */
 	function sleep(ms: number): Promise<void>;
-}
+
+    class ScriptAdapter {
+            
+            // =======================================================
+	// available functions in the sandbox
+	// =======================================================
+
+	// The already preloaded request module
+	
+	/**
+	 * The instance number of the JavaScript adapter this script runs in
+	 */
+	instance: number;
+	/**
+	 * The name of the current script
+	 */
+	
+	/**
+	 * The name of the current script
+	 */
+	scriptName: string;
+
+	/**
+	 * Queries all states with the given selector
+	 * @param selector See @link{https://github.com/ioBroker/ioBroker.javascript#---selector} for a description
+	 */
+	// @ts-ignore We need this function, although it conflicts with vue
+	$(selector: string): iobJS.QueryResult;
+
+	/**
+	 * Prints a message in the ioBroker log
+	 * @param message The message to print
+	 * @param severity (optional) severity of the message. default = "info"
+	 */
+	log(message: string, severity?: iobJS.LogLevel): void;
+    
+
+	/**
+	 * Executes a system command
+	 */
+	exec: typeof import("child_process").exec;
+
+	/**
+	 * Sends an email using the email adapter.
+	 * See the adapter documentation for a description of the msg parameter.
+	 */
+	email(msg: any): void;
+
+	/**
+	 * Sends a pushover message using the pushover adapter.
+	 * See the adapter documentation for a description of the msg parameter.
+	 */
+	pushover(msg: any): void;
+
+	/**
+	 * Subscribe to the changes of the matched states.
+	 */
+	on(pattern: string | RegExp | string[], handler: iobJS.StateChangeHandler): any;
+	on(
+		astroOrScheduleOrOptions: iobJS.AstroSchedule | iobJS.SubscribeTime | iobJS.SubscribeOptions,
+		handler: iobJS.StateChangeHandler
+	): any;
+	/**
+	 * Subscribe to the changes of the matched states.
+	 */
+	subscribe(pattern: string | RegExp | string[], handler: iobJS.StateChangeHandler): any;
+	subscribe(
+		astroOrScheduleOrOptions: iobJS.AstroSchedule | iobJS.SubscribeTime | iobJS.SubscribeOptions,
+		handler: iobJS.StateChangeHandler
+	): any;
+
+	/**
+	 * Subscribe to the changes of the matched files.
+	 * The return value can be used for offFile later
+	 * @param id ID of meta-object, like `vis.0`
+	 * @param filePattern File name or file pattern, like `main/*`
+	 * @param withFile If the content of the file must be returned in callback (high usage of memory)
+	 * @param handler Callback: (id, fileName, size, data, mimeType) {}
+	 */
+	onFile<WithFile extends boolean>(id: string, filePattern: string | string[], withFile: WithFile, handler: iobJS.FileChangeHandler<WithFile>): any;
+	onFile(id: string, filePattern: string | string[], handler: iobJS.FileChangeHandler<false>): any;
+
+	/**
+	 * Un-subscribe from the changes of the matched files.
+	 * @param id ID of meta-object, like `vis.0`. You can provide here can be a returned object from onFile. In this case, no filePattern required.
+	 * @param filePattern File name or file pattern, like `main/*`
+	 */
+	offFile(id: string | any, filePattern?: string | string[]): boolean;
+
+	/**
+	 * Registers a one-time subscription which automatically unsubscribes after the first invocation
+	 */
+	once(
+		pattern: string | RegExp | string[] | iobJS.AstroSchedule | iobJS.SubscribeTime | iobJS.SubscribeOptions,
+		handler: iobJS.StateChangeHandler
+	): any;
+	once(
+		pattern: string | RegExp | string[] | iobJS.AstroSchedule | iobJS.SubscribeTime | iobJS.SubscribeOptions
+	): Promise<iobJS.ChangedStateObject>;
+
+	/**
+	 * Causes all changes of the state with id1 to the state with id2.
+	 * The return value can be used to unsubscribe later
+	 */
+	on(id1: string, id2: string): any;
+	/**
+	 * Watches the state with id1 for changes and overwrites the state with id2 with value2 when any occur.
+	 * @param id1 The state to watch for changes
+	 * @param id2 The state to update when changes occur
+	 * @param value2 The value to write into state `id2` when `id1` gets changed
+	 */
+	on(id1: string, id2: string, value2: any): any;
+
+	/**
+	 * Causes all changes of the state with id1 to the state with id2
+	 */
+	subscribe(id1: string, id2: string): any;
+	/**
+	 * Watches the state with id1 for changes and overwrites the state with id2 with value2 when any occur.
+	 * @param id1 The state to watch for changes
+	 * @param id2 The state to update when changes occur
+	 * @param value2 The value to write into state `id2` when `id1` gets changed
+	 */
+	subscribe(id1: string, id2: string, value2: any): any;
+
+	/**
+	 * Returns the list of all currently active subscriptions
+	 */
+	getSubscriptions(): { [id: string]: iobJS.Subscription[] };
+
+	/**
+	 * Unsubscribe from changes of the given object ID(s) or handler(s)
+	 */
+	unsubscribe(id: string | string[]): boolean;
+	unsubscribe(handler: any | any[]): boolean;
+
+	adapterSubscribe(id: string): void;
+	adapterUnsubscribe(id: string): void;
+
+	/**
+	 * Schedules a to be executed on a defined schedule.
+	 * The return value can be used to clear the schedule later.
+	 */
+	schedule(pattern: string | iobJS.SchedulePattern, callback: EmptyCallback): any;
+	schedule(date: Date, callback: EmptyCallback): any;
+	schedule(astro: iobJS.AstroSchedule, callback: EmptyCallback): any;
+	/**
+	 * Clears a schedule. Returns true if it was successful.
+	 */
+	clearSchedule(schedule: any): boolean;
+
+	/**
+	 * Calculates the astro time which corresponds to the given pattern.
+	 * For valid patterns, see @link{https://github.com/ioBroker/ioBroker.javascript/blob/master/docs/en/javascript.md#astro-function}
+	 * @param pattern One of predefined patterns, like: sunrise, sunriseEnd, ...
+	 * @param date (optional) The date for which the astro time should be calculated. Default = today
+	 * @param offsetMinutes (optional) The number of minutes to be added to the return value.
+	 */
+	getAstroDate(pattern: string, date?: Date | number, offsetMinutes?: number): Date;
+
+	/**
+	 * Determines if now is between sunrise and sunset.
+	 */
+	isAstroDay(): boolean;
+
+	/**
+	 * Sets a state to the given value
+	 * @param id The ID of the state to be set
+	 */
+	setState(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, callback?: iobJS.SetStateCallback): void;
+	setState(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, ack: boolean, callback?: iobJS.SetStateCallback): void;
+
+	setStateAsync(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, ack?: boolean): iobJS.SetStatePromise;
+
+	/**
+	 * Sets a state to the given value after a timeout has passed.
+	 * Returns the timer, so it can be manually cleared with clearStateDelayed
+	 * @param id The ID of the state to be set
+	 * @param delay The delay in milliseconds
+	 * @param clearRunning (optional) Whether an existing timeout for this state should be cleared
+	 * @returns If a delayed setState was scheduled, this returns the timer id, otherwise null.
+	 */
+	setStateDelayed(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, delay: number, clearRunning: boolean, callback?: iobJS.SetStateCallback): number | null;
+	setStateDelayed(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, ack: boolean, clearRunning: boolean, callback?: iobJS.SetStateCallback): number | null;
+	setStateDelayed(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, ack: boolean, delay: number, callback?: iobJS.SetStateCallback): number | null;
+	setStateDelayed(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, delay: number, callback?: iobJS.SetStateCallback): number | null;
+	setStateDelayed(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, callback?: iobJS.SetStateCallback): number | null;
+	setStateDelayed(id: string, state: iobJS.State | iobJS.StateValue | iobJS.SettableState, ack: boolean, delay: number, clearRunning: boolean, callback?: iobJS.SetStateCallback): number | null;
+
+	/**
+	 * Clears a timer created by setStateDelayed
+	 * @param id The state id for which the timer should be cleared
+	 * @param timerID (optional) ID of the specific timer to clear. If none is given, all timers are cleared.
+	 */
+	clearStateDelayed(id: string, timerID?: number): boolean;
+
+	/**
+	 * Returns information about a specific timer created with `setStateDelayed`.
+	 * @param timerId The timer id that was returned by `setStateDelayed`.
+	 */
+	getStateDelayed(timerId: number): iobJS.StateTimer | null;
+	/**
+	 * Returns a list of all timers created with `setStateDelayed`. Can be limited to a specific state id.
+	 * @param id The state id for which the timers should be.
+	 */
+	getStateDelayed(id?: string): iobJS.StateTimer[];
+
+	/**
+	 * Sets a binary state to the given value
+	 * @param id The ID of the state to be set
+	 * @param state binary data as buffer
+	 * @param callback called when the operation finished
+	 */
+	setBinaryState(id: string, state: Buffer, callback?: iobJS.SetStateCallback): void;
+	setBinaryStateAsync(id: string, state: Buffer): iobJS.SetStatePromise;
+
+	/**
+	 * Returns the state with the given ID.
+	 * If the adapter is configured to subscribe to all states on start,
+	 * this can be called synchronously and immediately returns the state.
+	 * Otherwise, you need to provide a callback.
+	 */
+	getState<T extends iobJS.StateValue = any>(id: string, callback: iobJS.GetStateCallback<T>): void;
+	getState<T extends iobJS.StateValue = any>(id: string): iobJS.State<T> | iobJS.AbsentState;
+	getStateAsync<T extends iobJS.StateValue = any>(id: string): Promise<iobJS.State<T>>;
+
+	/**
+	 * Returns the binary state with the given ID.
+	 * If the adapter is configured to subscribe to all states on start,
+	 * this can be called synchronously and immediately returns the state.
+	 * Otherwise, you need to provide a callback.
+	 */
+	getBinaryState(id: string, callback: iobJS.GetStateCallback): void;
+	getBinaryState(id: string): Buffer;
+	getBinaryStateAsync(id: string): iobJS.GetBinaryStatePromise;
+
+	/**
+	 * Checks if the state with the given ID exists
+	 */
+	existsState(id: string, callback: iobJS.ExistsStateCallback): void;
+	existsState(id: string): boolean;
+	existsStateAsync(id: string): Promise<boolean>;
+	/**
+	 * Checks if the object with the given ID exists
+	 */
+	existsObject(id: string): boolean;
+	existsObjectAsync(id: string): Promise<boolean>;
+
+	/**
+	 * Returns the IDs of the states with the given name
+	 * @param name Name of the state
+	 * @param forceArray (optional) Ensures that the return value is always an array, even if only one ID was found.
+	 */
+	getIdByName(name: string, forceArray?: boolean): string | string[];
+
+	/**
+	 * Reads an object from the object db.
+	 * @param enumName Which enum should be included in the returned object. `true` to return all enums.
+	 */
+	getObject<T extends string>(id: T, enumName?: string | true): iobJS.ObjectIdToObjectType<T, "read">;
+	getObject<T extends string>(id: T, callback: iobJS.GetObjectCallback<T>): void;
+	getObject<T extends string>(id: T, enumName: string | true, callback: iobJS.GetObjectCallback<T>): void;
+	getObjectAsync<T extends string>(id: T, enumName?: string | true): iobJS.GetObjectPromise<T>;
+
+	/** Creates or overwrites an object in the object db */
+	setObject(id: string, obj: iobJS.SettableObject, callback?: iobJS.SetObjectCallback): void;
+	setObjectAsync(id: string, obj: iobJS.SettableObject): iobJS.SetObjectPromise;
+	/** Extend an object and create it if it might not exist */
+	extendObject(id: string, objPart: iobJS.PartialObject, callback?: iobJS.SetObjectCallback): void;
+	extendObjectAsync(id: string, objPart: iobJS.PartialObject): iobJS.SetObjectPromise;
+
+	/** Deletes an object in the object db */
+	deleteObject(id: string, callback?: ErrorCallback): void;
+	deleteObject(id: string, recursive: boolean, callback?: ErrorCallback): void;
+	deleteObjectAsync(id: string, recursive?: boolean): Promise<void>;
+
+	getEnums(enumName?: string): any;
+
+	/**
+	 * Creates a state and the corresponding object under the javascript namespace.
+	 * @param name The name of the state without the namespace
+	 * @param initValue (optional) Initial value of the state
+	 * @param forceCreation (optional) Override the state if it already exists
+	 * @param common (optional) Common part of the state object
+	 * @param native (optional) Native part of the state object
+	 * @param callback (optional) Called after the state was created
+	 */
+	createState(name: string, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, initValue: iobJS.StateValue, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, initValue: iobJS.StateValue, forceCreation: boolean, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, initValue: iobJS.StateValue, forceCreation: boolean, common: Partial<iobJS.StateCommon>, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, initValue: iobJS.StateValue, forceCreation: boolean, common: Partial<iobJS.StateCommon>, native: any, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, common: Partial<iobJS.StateCommon>, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, initValue: iobJS.StateValue, common: Partial<iobJS.StateCommon>, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, common: Partial<iobJS.StateCommon>, native: any, callback?: iobJS.SetStateCallback): void;
+	createState(name: string, initValue: iobJS.StateValue, common: Partial<iobJS.StateCommon>, native: any, callback?: iobJS.SetStateCallback): void;
+
+	createStateAsync(name: string, initValue?: iobJS.StateValue, forceCreation?: boolean, common?: Partial<iobJS.StateCommon>, native?: any): iobJS.SetStatePromise;
+	createStateAsync(name: string, common: Partial<iobJS.StateCommon>): iobJS.SetStatePromise;
+	createStateAsync(name: string, common: Partial<iobJS.StateCommon>, native?: any): iobJS.SetStatePromise;
+	createStateAsync(name: string, initValue: iobJS.StateValue, common: Partial<iobJS.StateCommon>): iobJS.SetStatePromise;
+	createStateAsync(name: string, initValue: iobJS.StateValue, common: Partial<iobJS.StateCommon>, native?: any): iobJS.SetStatePromise;
+
+	createAlias(name: string, alias: string | iobJS.StateCommonAlias, callback?: iobJS.SetStateCallback): void;
+	createAlias(name: string, alias: string | iobJS.StateCommonAlias, forceCreation: boolean, callback?: iobJS.SetStateCallback): void;
+	createAlias(name: string, alias: string | iobJS.StateCommonAlias, forceCreation: boolean, common: Partial<iobJS.StateCommon>, callback?: iobJS.SetStateCallback): void;
+	createAlias(name: string, alias: string | iobJS.StateCommonAlias, forceCreation: boolean, common: Partial<iobJS.StateCommon>, native: any, callback?: iobJS.SetStateCallback): void;
+	createAlias(name: string, alias: string | iobJS.StateCommonAlias, common: Partial<iobJS.StateCommon>, callback?: iobJS.SetStateCallback): void;
+	createAlias(name: string, alias: string | iobJS.StateCommonAlias, common: Partial<iobJS.StateCommon>, native: any, callback?: iobJS.SetStateCallback): void;
+
+	createAliasAsync(name: string, alias: string | iobJS.StateCommonAlias, forceCreation?: boolean, common?: Partial<iobJS.StateCommon>, native?: any): iobJS.SetStatePromise;
+	createAliasAsync(name: string, alias: string | iobJS.StateCommonAlias, common: Partial<iobJS.StateCommon>): iobJS.SetStatePromise;
+	createAliasAsync(name: string, alias: string | iobJS.StateCommonAlias, common: Partial<iobJS.StateCommon>, native?: any): iobJS.SetStatePromise;
+
+
+
+	/**
+	 * Deletes the state with the given ID
+	 * @param callback (optional) Is called after the state was deleted (or not).
+	 */
+	deleteState(id: string, callback?: GenericCallback<boolean>): void;
+	deleteStateAsync(id: string): Promise<boolean>;
+
+	/**
+	 * Sends a message to a specific instance or all instances of some specific adapter.
+	 * @param instanceName The instance to send this message to.
+	 * If the ID of an instance is given (e.g. "admin.0"), only this instance will receive the message.
+	 * If the name of an adapter is given (e.g. "admin"), all instances of this adapter will receive it.
+	 * @param command (optional) Command name of the target instance. Default: "send"
+	 * @param message The message (e.g., params) to send.
+	 */
+	sendTo(instanceName: string, command: string, message: string | object, options: iobJS.SendToOptions, callback?: iobJS.MessageCallback | iobJS.MessageCallbackInfo): void;
+	sendTo(instanceName: string, command: string, message: string | object, callback?: iobJS.MessageCallback | iobJS.MessageCallbackInfo): void;
+	sendTo(instanceName: string, message: string | object, callback?: iobJS.MessageCallback | iobJS.MessageCallbackInfo): void;
+	sendToAsync(instanceName: string, message: string | object): Promise<iobJS.MessageCallback | iobJS.MessageCallbackInfo>;
+	sendToAsync(instanceName: string, command: string, message: string | object): Promise<iobJS.MessageCallback | iobJS.MessageCallbackInfo>;
+	sendToAsync(instanceName: string, command: string, message: string | object, options: iobJS.SendToOptions): Promise<iobJS.MessageCallback | iobJS.MessageCallbackInfo>;
+
+	/**
+	 * Sends a message to a specific instance or all instances of some specific adapter.
+	 * @param host Host name.
+	 * @param command Command name for the target host.
+	 * @param message The message (e.g., params) to send.
+	 */
+	sendToHost(host: string, command: string, message: string | object, callback?: iobJS.MessageCallback | iobJS.MessageCallbackInfo): void;
+	sendToHostAsync(host: string, command: string, message: string | object): Promise<iobJS.MessageCallback | iobJS.MessageCallbackInfo>;
+
+	/**
+	 * Compares two or more times
+	 * @param timeToCompare - The time to compare with startTime and/or endTime. If none is given, the current time is used
+	 */
+	compareTime(
+		startTime: string | number | Date | iobJS.AstroDate,
+		endTime: string | number | Date | iobJS.AstroDate,
+		operation: CompareTimeOperations,
+		timeToCompare?: string | number | Date | iobJS.AstroDate,
+	): boolean;
+
+	/** Sets up a callback which is called when the script stops */
+	onStop(callback: (cb?: EmptyCallback) => void, timeout?: number): void;
+
+	formatValue(value: number | string, format?: any): string;
+	formatValue(value: number | string, decimals: number, format?: any): string;
+	formatDate(dateObj: string | Date | number, format: string, language?: string): string;
+	formatDate(dateObj: string | Date | number, isDuration: boolean | string, format: string, language?: string): string;
+	formatTimeDiff(diff: number): string;
+	formatTimeDiff(diff: number, format: string): string;
+
+	getDateObject(date: number | string | Date): Date;
+
+	/**
+	 * Writes a file.
+	 * @param id Name of the root directory. This should be the adapter instance, e.g. "admin.0"
+	 * @param name File name
+	 * @param data Contents of the file
+	 * @param callback Is called when the operation has finished (successfully or not)
+	 */
+	writeFile(id: string, name: string, data: Buffer | string, callback: ErrorCallback): void;
+	writeFileAsync(id: string, name: string, data: Buffer | string): Promise<void>;
+
+	/**
+	 * Reads a file.
+	 * @param id Name of the root directory. This should be the adapter instance, e.g. "admin.0"
+	 * @param name File name
+	 * @param callback Is called when the operation has finished (successfully or not)
+	 */
+	readFile(id: string, name: string, callback: iobJS.ReadFileCallback): void;
+	readFileAsync(id: string, name: string): iobJS.ReadFilePromise;
+
+	/**
+	 * Deletes a file.
+	 * @param id Name of the root directory. This should be the adapter instance, e.g. "admin.0"
+	 * @param name File name
+	 * @param callback Is called when the operation has finished (successfully or not)
+	 */
+	unlink(id: string, name: string, callback: ErrorCallback): void;
+	unlinkAsync(id: string, name: string): Promise<void>;
+
+	/**
+	 * Deletes a file.
+	 * @param id Name of the root directory. This should be the adapter instance, e.g. "admin.0"
+	 * @param name File name
+	 * @param callback Is called when the operation has finished (successfully or not)
+	 */
+	delFile(id: string, name: string, callback: ErrorCallback): void;
+	delFileAsync(id: string, name: string): Promise<void>;
+
+	getHistory(instance: any, options: any, callback: any): any;
+	getHistoryAsync(instance: any, options: any): Promise<any>;
+
+	/**
+	 * Starts or restarts a script by name
+	 * @param scriptName (optional) Name of the script. If none is given, the current script is (re)started.
+	 */
+	runScript(scriptName?: string, callback?: ErrorCallback): boolean;
+	runScriptAsync(scriptName?: string): Promise<void>;
+
+	/**
+	 * Starts or restarts a script by name
+	 * @param scriptName (optional) Name of the script. If none is given, the current script is (re)started.
+	 * @param ignoreIfStarted If set to true, running scripts will not be restarted.
+	 * @param callback (optional) Is called when the script has finished (successfully or not)
+	 */
+	startScript(scriptName: string | undefined, ignoreIfStarted: boolean, callback?: GenericCallback<boolean>): boolean;
+	startScriptAsync(scriptName?: string | undefined, ignoreIfStarted?: boolean): Promise<void>;
+
+	/**
+	 * Starts or restarts a script by name
+	 * @param scriptName (optional) Name of the script. If none is given, the current script is (re)started.
+	 * @param callback (optional) Is called when the script has finished (successfully or not)
+	 */
+	startScript(scriptName?: string, callback?: GenericCallback<boolean>): boolean;
+	/**
+	 * Stops a script by name
+	 * @param scriptName (optional) Name of the script. If none is given, the current script is stopped.
+	 */
+	stopScript(scriptName: string | undefined, callback?: GenericCallback<boolean>): boolean;
+	stopScriptAsync(scriptName?: string): Promise<void>;
+
+	isScriptActive(scriptName: string): boolean;
+
+	/** Converts a value to an integer */
+	toInt(val: any): number;
+	/** Converts a value to a floating point number */
+	toFloat(val: any): number;
+	/** Converts a value to a boolean */
+	toBoolean(val: any): boolean;
+
+	/**
+	 * Digs in an object for the property value at the given path.
+	 * @param obj The object to dig in
+	 * @param path The path of the property to dig for in the given object
+	 */
+	getAttr(obj: string | Record<string, any>, path: string | string[]): any;
+
+	/**
+	 * Sends a message to another script.
+	 * @param target Message name or target object
+	 * @param data Any data, that should be sent to message bus
+	 * @param options Actually only {timeout: X} is supported as option
+	 * @param callback Callback to get the result from other script
+	 * @return ID of the subscription. It could be used for un-subscribe.
+	 */
+	messageTo(target: iobJS.MessageTarget | string, data: any, options?: any, callback?: SimpleCallback<any>): iobJS.MessageSubscribeID;
+	messageToAsync(target: iobJS.MessageTarget | string, data: any, options?: any): Promise<iobJS.MessageCallback | iobJS.MessageCallbackInfo>;
+
+	/**
+	 * Process message from another script.
+	 * @param message Message name
+	 * @param callback Callback to send the result to another script
+	 */
+	onMessage(message: string, callback?: SimpleCallback<any>);
+
+	/**
+	 * Unregister onmessage handler
+	 * @param id Message subscription id from onMessage or by message name
+	 * @return true if subscription exists and was deleted.
+	 */
+	onMessageUnregister(id: iobJS.MessageSubscribeID | string): boolean;
+
+	/**
+	 * Receives logs of specified severity level in a script.
+	 * @param severity Severity level
+	 * @param callback Callback to send the result to another script
+	 */
+	onLog(severity: iobJS.LogLevel | "*", callback: SimpleCallback<iobJS.LogMessage>);
+
+	/**
+	 * Unsubscribe log handler.
+	 * @param idOrCallbackOrSeverity Message subscription id from onLog or by callback function
+	 * @return true if subscription exists and was deleted.
+	 */
+	onLogUnregister(idOrCallbackOrSeverity: iobJS.MessageSubscribeID | SimpleCallback<iobJS.LogMessage> | iobJS.LogLevel | "*"): boolean;
+
+	/** `await` this method to pause for the given number of milliseconds */
+	wait(ms: number): Promise<void>;
+
+	/** `await` this method to pause for the given number of milliseconds */
+	sleep(ms: number): Promise<void>;
+        }
+    }
