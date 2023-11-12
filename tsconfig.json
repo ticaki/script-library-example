@@ -17,7 +17,6 @@
       ]
     },
     "include": [
-      "**/*.js",
       "**/*.ts",
       "types/javascript.d.ts"
     ],
