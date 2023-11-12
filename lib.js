@@ -1,15 +1,15 @@
-var Person = /** @class */ (function () {
-    function Person(vorname, nachname, alter) {
+class Person {
+    constructor(vorname, nachname, alter, that) {
         this.vorname = vorname;
         this.nachname = nachname;
         this.alter = alter;
+        this.that = that;
     }
-    Person.prototype.information = function () {
-        return ("Mein Name ist ".concat(this.vorname, " ").concat(this.nachname, " und ich bin ").concat(this.alter, " Jahre alt!!!!1"));
-    };
-    Person.prototype.log = function () {
-        log(this.information());
-    };
-    return Person;
-}());
-module.exports = { Person: Person };
+    information() {
+        return (`Mein Name ist ${this.vorname} ${this.nachname} und ich bin ${this.alter} Jahre alt!!!!1`);
+    }
+    log() {
+        this.that.log(this.information());
+    }
+}
+module.exports = { Person };
