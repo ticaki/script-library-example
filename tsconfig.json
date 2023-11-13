@@ -2,27 +2,26 @@
     "compileOnSave": true,
     "compilerOptions": {
         "noEmit": false,
-      "allowJs": true,
-      "checkJs": true,
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "resolveJsonModule": true,
-      "strict": false,
-      "noImplicitAny": false,
-      "target": "es2018",
-      "typeRoots": [
-        ".iobroker/types",
-        "node_modules/@types"
-      ],
-      
+        "allowJs": true,
+        "checkJs": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "strict": false,
+        "noImplicitAny": false,
+        "target": "es2018",
+        "typeRoots": [
+            ".iobroker/types",
+            "node_modules/@types"
+        ],
     },
     "include": [
-      "**/*.ts",
-      ".iobroker/types/javascript.d.ts"
+        "**/*.ts",
+        ".iobroker/types/javascript.d.ts"
     ],
     "exclude": [
-      "node_modules/**",
-      "example/**"
+        "node_modules/**",
+        "example/**"
     ],
-  }
+}
