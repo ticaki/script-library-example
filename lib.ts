@@ -17,6 +17,9 @@ class Person {
     log(): void {
         this.adapter.log(this.information());
     }
+    async someFn(dp: string, value:string|number|boolean | (string|number|boolean)[]): Promise<void> {
+        await this.adapter.setStateAsync(dp, value);
+    }
   }
  
 module.exports = { Person};

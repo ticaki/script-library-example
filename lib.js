@@ -11,5 +11,8 @@ class Person {
     log() {
         this.adapter.log(this.information());
     }
+    async someFn(dp, value) {
+        await this.adapter.setStateAsync(dp, value);
+    }
 }
 module.exports = { Person };
